@@ -7,6 +7,10 @@ function moveInDirection(direction) {
 	gameManager.inputManager.emit("move", direction);
 }
 
+function restartGame() {
+  gameManager.inputManager.emit("restart");
+}
+
 function moveNorth() {
 	moveInDirection(NORTH);
 }
@@ -20,11 +24,15 @@ function moveWest() {
 	moveInDirection(WEST);
 }
 
+// It performed much better when
+// you could not move west!
 var randomIntervalObj;
 function playRandomly(millis) {
   var timePerMoveInMilliseconds = millis || 125;
   randomIntervalObj = setInterval(function() {
-    var move = Math.floor(Math.random() * 3);
+    // if (gameManager.over) restartGame();
+
+    var move = Math.floor(Math.random() * 4);
     moveInDirection(move);
   }, timePerMoveInMilliseconds);
 }
