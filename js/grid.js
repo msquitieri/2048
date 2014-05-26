@@ -99,6 +99,16 @@ Grid.prototype.withinBounds = function (position) {
          position.y >= 0 && position.y < this.size;
 };
 
+Grid.prototype.largestNumber = function() {
+  var max = -1;
+  this.eachCell(function(x, y, tile) {
+    if (tile) {
+      if (max < tile.value) max = tile.value;
+    }
+  });
+  return max;
+};
+
 Grid.prototype.serialize = function () {
   var cellState = [];
 
