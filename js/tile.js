@@ -16,6 +16,13 @@ Tile.prototype.updatePosition = function (position) {
   this.y = position.y;
 };
 
+Tile.prototype.resetPosition = function() {
+  if (!!this.previousPosition) {
+    this.x = this.previousPosition.x;
+    this.y = this.previousPosition.y;
+  }
+};
+
 Tile.prototype.serialize = function () {
   return {
     position: {
