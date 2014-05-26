@@ -7,6 +7,23 @@ function moveInDirection(direction) {
 	gameManager.inputManager.emit("move", direction);
 }
 
+function moveBasedOnNextMove () {
+  var map = {
+    gameManager.getUtilityForDirection(NORTH) : NORTH,
+    gameManager.getUtilityForDirection(SOUTH) : SOUTH,
+    gameManager.getUtilityForDirection(EAST)  : EAST,
+    gameManager.getUtilityForDirection(WEST)  : WEST,
+  }
+
+  var keys = Object.keys(map);
+  var max  = -1;
+  for (var i = 0; i < keys.length; i++) {
+    if (max < keys[i]) max = keys[i];
+  }
+
+  moveInDirection(map[max]);
+}
+
 function restartGame() {
   moves = 0;
   gameManager.inputManager.emit("restart");
