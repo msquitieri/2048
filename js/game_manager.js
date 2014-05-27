@@ -127,6 +127,8 @@ GameManager.prototype.moveTile = function (tile, cell) {
 };
 
 GameManager.prototype.canMoveInDirection = function(direction) {
+  if (this.over) return false;
+
   var self = this;
 
   var cell, tile;
@@ -184,6 +186,8 @@ GameManager.prototype.canMoveInDirection = function(direction) {
 };
 
 GameManager.prototype.getUtilityForDirection = function(direction) {
+  if (this.over) return -1;
+
   var self = this;
 
   var cell, tile;
@@ -202,7 +206,6 @@ GameManager.prototype.getUtilityForDirection = function(direction) {
     traversals.y.forEach(function (y) {
       cell = { x: x, y: y };
       tile = self.grid.cellContent(cell);
-
       if (tile) {
         var positions = self.findFarthestPosition(cell, vector);
         var next      = self.grid.cellContent(positions.next);
@@ -232,11 +235,9 @@ GameManager.prototype.getUtilityForDirection = function(direction) {
           // self.moveTile(tile, positions.farthest);
           tile.updatePosition(positions.farthest);
         }
-
         if (!self.positionsEqual(cell, tile)) {
           moved = true; // The tile moved from its original cell!
         }
-
         tile.resetPosition();
       }
     });
