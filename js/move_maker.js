@@ -8,9 +8,72 @@ function moveInDirection(direction) {
 }
 
 function playBasedOnUtilityFunction () {
-  randomIntervalObj = setInterval(moveBasedOnNextMove, 200);
+  intervalObj = setInterval(moveBasedOnNextMove, 200);
 }
 
+function play(name, moveFunction, millis) {
+  var timePerMoveInMilliseconds = millis || 125;
+
+  intervalObj = setInterval(function() {
+    if (gameManager.over) {
+      logRun(name, gameManager.score, moves, gameManager.grid.largestNumber());
+      console.log("score : " + gameManager.score 
+            + " ; moves : " + moves + " ; largestNumber : " + gameManager.grid.largestNumber());
+      restartGame();
+    }
+
+    var move = moveFunction();
+    moveInDirection(move);
+    moves++;
+  }, timePerMoveInMilliseconds);
+}
+
+function getRandomMove() {
+  var move = Math.floor(Math.random() * 4);
+  
+  while (!gameManager.canMoveInDirection(move)) 
+    move = Math.floor(Math.random() * 4);
+
+  return move;
+}
+
+function getBestNextMove() {
+  var north, south, east, west;
+
+  if (gameManager.over) return;
+
+  north = gameManager.getUtilityForDirection(NORTH);
+  south = gameManager.getUtilityForDirection(SOUTH);
+  east = gameManager.getUtilityForDirection(EAST);
+  west = gameManager.getUtilityForDirection(WEST);
+
+  var map = {};
+
+  map[north] = NORTH;
+  map[south] = SOUTH;
+  map[east]  = EAST;
+  map[west]  = WEST;
+
+  // console.log("map : ");
+  // console.log(map);
+
+  var keys = Object.keys(map);
+  var max  = -1;
+  for (var i = 0; i < keys.length; i++) {
+    if (max < keys[i]) max = keys[i];
+  }
+
+  var direction = map[max];
+  // If it can't move in that direction, that means
+  // they all have utility 0. Pick a random direction
+  // to go.
+  while (!gameManager.canMoveInDirection(direction) && !gameManager.isOver) {
+    // console.log("picking random move");
+    direction = Math.floor(Math.random() * 4);  
+  }
+
+  return direction;
+}
 
 function moveBasedOnNextMove () {
   var north, south, east, west;
@@ -94,7 +157,7 @@ function logRun (type, score, moves, largestNumber) {
 }
 // It performed much better when
 // you could not move west!
-var randomIntervalObj;
+var intervalObj;
 var moves = 0;
 function playRandomly(millis) {
   playRandomlyWithoutDirection(null, millis);
@@ -102,7 +165,7 @@ function playRandomly(millis) {
 
 function playRandomlyWithoutDirection(direction, millis) {
   var timePerMoveInMilliseconds = millis || 125;
-  randomIntervalObj = setInterval(function() {
+  intervalObj = setInterval(function() {
     if (gameManager.over) {
       // logRun("random", gameManager.score, moves, gameManager.grid.largestNumber());
       console.log("score : " + gameManager.score 
@@ -119,5 +182,5 @@ function playRandomlyWithoutDirection(direction, millis) {
 }
 
 function stopPlaying() {
-  clearInterval(randomIntervalObj);
+  clearInterval(intervalObj);
 }
