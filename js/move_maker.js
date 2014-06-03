@@ -7,16 +7,12 @@ function moveInDirection(direction) {
 	gameManager.inputManager.emit("move", direction);
 }
 
-function playBasedOnUtilityFunction () {
-  intervalObj = setInterval(moveBasedOnNextMove, 200);
-}
-
 function play(name, moveFunction, millis) {
   var timePerMoveInMilliseconds = millis || 125;
 
   intervalObj = setInterval(function() {
     if (gameManager.over) {
-      logRun(name, gameManager.score, moves, gameManager.grid.largestNumber());
+      // logRun(name, gameManager.score, moves, gameManager.grid.largestNumber());
       console.log("score : " + gameManager.score 
             + " ; moves : " + moves + " ; largestNumber : " + gameManager.grid.largestNumber());
       restartGame();
@@ -29,6 +25,8 @@ function play(name, moveFunction, millis) {
 }
 
 function getRandomMove() {
+  console.log("GETTING RANDOM MOVE!!");
+
   var move = Math.floor(Math.random() * 4);
   
   while (!gameManager.canMoveInDirection(move)) 
@@ -37,80 +35,121 @@ function getRandomMove() {
   return move;
 }
 
-function getBestNextMove() {
+function getKeyWithHighestValue (map) {
+  var keys = Object.keys(map);
+  var max  = -1;
+  var keyInt;
+
+  for (var i = 0; i < keys.length; i++) {
+    keyInt = parseInt(keys[i]);
+    if (max < keyInt) max = keyInt;
+  }
+
+  return max;
+}
+
+function getValueFromHighestKey (map) {
+  var max = getKeyWithHighestValue(map);
+
+  return map[max];
+}
+
+function getUtilityMap (utilityFunction) {
   var north, south, east, west;
-
-  if (gameManager.over) return;
-
-  north = gameManager.getUtilityForDirection(NORTH);
-  south = gameManager.getUtilityForDirection(SOUTH);
-  east = gameManager.getUtilityForDirection(EAST);
-  west = gameManager.getUtilityForDirection(WEST);
-
   var map = {};
+
+  north = utilityFunction(NORTH);
+  south = utilityFunction(SOUTH);
+  east = utilityFunction(EAST);
+  west = utilityFunction(WEST);
 
   map[north] = NORTH;
   map[south] = SOUTH;
   map[east]  = EAST;
   map[west]  = WEST;
 
-  // console.log("map : ");
-  // console.log(map);
+  return map;
+}
 
+function getDirectionFromMap (map) {
   var keys = Object.keys(map);
-  var max  = -1;
-  for (var i = 0; i < keys.length; i++) {
-    if (max < keys[i]) max = keys[i];
-  }
 
-  var direction = map[max];
-  // If it can't move in that direction, that means
-  // they all have utility 0. Pick a random direction
-  // to go.
-  while (!gameManager.canMoveInDirection(direction) && !gameManager.isOver) {
-    // console.log("picking random move");
-    direction = Math.floor(Math.random() * 4);  
+  if (keys.length != 1) {
+    direction = getValueFromHighestKey(map);
+  } else {
+    // Return false to designate that there is no
+    // move with highest utility.
+    direction = false;
   }
 
   return direction;
 }
 
-function moveBasedOnNextMove () {
-  var north, south, east, west;
+function getMoveBasedOnUtilityAndAdjacency () {
+  var direction;
 
   if (gameManager.over) return;
 
-  north = gameManager.getUtilityForDirection(NORTH);
-  south = gameManager.getUtilityForDirection(SOUTH);
-  east = gameManager.getUtilityForDirection(EAST);
-  west = gameManager.getUtilityForDirection(WEST);
+  var map = getUtilityMap(function  (direction) {
+    var utilityWeight   = 1;
+    var adjacencyWeight = 0.5;
 
-  var map = {};
+    return (utilityWeight * gameManager.getUtilityForDirection(direction)
+      + adjacencyWeight * gameManager.getAdjacencyUtilityForDirection(direction));
+  });
 
-  map[north] = NORTH;
-  map[south] = SOUTH;
-  map[east]  = EAST;
-  map[west]  = WEST;
+  direction = getDirectionFromMap(map);
+  if (!direction) direction = getRandomMove();
 
-  // console.log("map : ");
-  // console.log(map);
+  return direction;
+}
 
-  var keys = Object.keys(map);
-  var max  = -1;
-  for (var i = 0; i < keys.length; i++) {
-    if (max < keys[i]) max = keys[i];
+function getBestMoveByAdjacency () {
+  var direction;
+
+  if (gameManager.over) return;
+
+  var map = getUtilityMap(function (direction) {
+    return gameManager.getAdjacencyUtilityForDirection(direction);
+  });
+
+  direction = getDirectionFromMap(map);
+  if (!direction) direction = getRandomMove();
+
+  return direction;
+}
+
+function getBestNextMoveOrBestAdjacency () {
+  var direction;
+
+  if (gameManager.over) return;
+
+  direction = getBestNextMove();
+  if (!direction) {
+    direction = getBestMoveByAdjacency();
+    if (!direction) direction = getRandomMove();
   }
 
-  var direction = map[max];
-  // If it can't move in that direction, that means
-  // they all have utility 0. Pick a random direction
-  // to go.
-  while (!gameManager.canMoveInDirection(direction) && !gameManager.isOver) {
-    // console.log("picking random move");
-    direction = Math.floor(Math.random() * 4);  
-  }
+  return direction;
+}
 
-  // console.log("going in direction: " + map[max]);
+function getBestNextMove() {
+  var direction;
+
+  if (gameManager.over) return;
+
+  var map = getUtilityMap(function(direction) {
+    return gameManager.getUtilityForDirection(direction);
+  });
+
+  direction = getDirectionFromMap(map);
+  if (!direction) direction = getRandomMove();
+
+  return direction;
+}
+
+function moveBasedOnNextMove () {
+  var direction = getBestNextMove();
   moveInDirection(direction);
 }
 
