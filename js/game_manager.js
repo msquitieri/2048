@@ -185,8 +185,87 @@ GameManager.prototype.canMoveInDirection = function(direction) {
   return moved;
 };
 
+GameManager.prototype.getAdjacencyUtilityForDirection = function(direction) {
+  if (this.over) return -1;
+
+  if (!this.canMoveInDirection(direction)) return -1;
+
+  var self = this;
+
+  var tmp_grid = new Grid(this.grid.size);
+
+  var cell, tile;
+
+  var vector     = this.getVector(direction);
+  var traversals = this.buildTraversals(vector);
+  var moved      = false;
+
+  var added      = 0;
+
+  // Save the current tile positions and remove merger information
+  this.prepareTiles();
+
+  // Traverse the grid in the right direction and move tiles
+  traversals.x.forEach(function (x) {
+    traversals.y.forEach(function (y) {
+      cell = { x: x, y: y };
+      tile = self.grid.cellContent(cell);
+      if (tile) {
+        var positions = self.findFarthestPosition(cell, vector);
+        var next      = self.grid.cellContent(positions.next);
+
+        // Only one merger per row traversal?
+        if (next && next.value === tile.value && !next.mergedFrom) {
+          var merged = new Tile(positions.next, tile.value * 2);
+          merged.mergedFrom = [tile, next];
+
+          // Converge the two tiles' positions
+          tile.updatePosition(positions.next);
+        } else {
+          // We can update the tile, which is reset
+          // but we can't update the grid!
+
+          // self.moveTile(tile, positions.farthest);
+          tile.updatePosition(positions.farthest);
+        }
+        if (!self.positionsEqual(cell, tile)) {
+          moved = true; // The tile moved from its original cell!
+        }
+        tmp_grid.insertTile(tile);
+
+        tile.resetPosition();
+      }
+    });
+  });
+  
+  var utility = 0;
+  tmp_grid.eachCell(function (x, y, tile) {
+    if (tile) {
+      // Check north
+      var northObj = { x : tile.x, y : tile.y - 1 };
+      var north = tmp_grid.cellContent(northObj);
+      if (north && north.value == tile.value) utility += tile.value;
+      // Check south
+      var southObj = { x : tile.x, y : tile.y + 1 };
+      var south = tmp_grid.cellContent(southObj);
+      if (south && south.value == tile.value) utility += tile.value;
+      // Check east
+      var eastObj = { x : tile.x + 1, y : tile.y };
+      var east = tmp_grid.cellContent(eastObj);
+      if (east && east.value == tile.value) utility += tile.value;
+      // Check west
+      var westObj = { x : tile.x - 1, y : tile.y };
+      var west = tmp_grid.cellContent(westObj);
+      if (west && west.value == tile.value) utility += tile.value;
+    }
+  });
+  return utility;
+};
+
 GameManager.prototype.getUtilityForDirection = function(direction) {
   if (this.over) return -1;
+
+  if (!this.canMoveInDirection(direction)) return -1;
 
   var self = this;
 
