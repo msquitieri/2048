@@ -109,6 +109,12 @@ Grid.prototype.largestNumber = function() {
   return max;
 };
 
+Grid.prototype.getNumberOfTiles = function() {
+  var totalPossibleTiles = this.size * this.size;
+
+  return totalPossibleTiles - this.availableCells().length;
+};
+
 Grid.prototype.serialize = function () {
   var cellState = [];
 
