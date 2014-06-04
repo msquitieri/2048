@@ -85,12 +85,20 @@ function getDirectionFromMap (map) {
   return direction;
 }
 
+function getDirectionFromUtilityFunction (utilityFunction) {
+  var map = getUtilityMap(utilityFunction);
+
+  var direction = getDirectionFromMap(map);
+
+  return direction;
+}
+
 function getMoveBasedOnUtilityAndAdjacency () {
   var direction;
 
   if (gameManager.over) return;
 
-  var map = getUtilityMap(function  (direction) {
+  direction = getDirectionFromUtilityFunction(function (direction) {
     var utilityWeight   = 1;
     var adjacencyWeight = 0.5;
 
@@ -98,7 +106,6 @@ function getMoveBasedOnUtilityAndAdjacency () {
       + adjacencyWeight * gameManager.getAdjacencyUtilityForDirection(direction));
   });
 
-  direction = getDirectionFromMap(map);
   if (!direction) direction = getRandomMove();
 
   return direction;
@@ -109,11 +116,10 @@ function getBestMoveByAdjacency () {
 
   if (gameManager.over) return;
 
-  var map = getUtilityMap(function (direction) {
+  direction = getDirectionFromUtilityFunction(function (direction) {
     return gameManager.getAdjacencyUtilityForDirection(direction);
   });
 
-  direction = getDirectionFromMap(map);
   if (!direction) direction = getRandomMove();
 
   return direction;
@@ -138,11 +144,10 @@ function getBestNextMove() {
 
   if (gameManager.over) return;
 
-  var map = getUtilityMap(function(direction) {
+  direction = getDirectionFromUtilityFunction(function(direction) {
     return gameManager.getUtilityForDirection(direction);
   });
 
-  direction = getDirectionFromMap(map);
   if (!direction) direction = getRandomMove();
 
   return direction;
