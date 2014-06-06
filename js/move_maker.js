@@ -3,6 +3,13 @@ var NORTH = 0,
     SOUTH = 2,
     WEST  = 3;
 
+var allDirections = [NORTH, SOUTH, EAST, WEST];
+
+// Returns random integer in range [first, last);
+function getRandomIntegerBetween(first, last) {
+  return (Math.floor(Math.random() * last) + first);
+}
+
 function moveInDirection(direction) {
 	gameManager.inputManager.emit("move", direction);
 }
@@ -27,10 +34,10 @@ function play(name, moveFunction, millis) {
 function getRandomMove() {
   console.log("GETTING RANDOM MOVE!!");
 
-  var move = Math.floor(Math.random() * 4);
+  var move = getRandomIntegerBetween(0, allDirections.length);
   
   while (!gameManager.canMoveInDirection(move)) 
-    move = Math.floor(Math.random() * 4);
+    move = getRandomIntegerBetween(0, allDirections.length);
 
   return move;
 }
@@ -217,10 +224,10 @@ function playRandomlyWithoutDirection(direction, millis) {
       restartGame();
     }
 
-    var move = Math.floor(Math.random() * 4);
-    while (move == direction) move = Math.floor(Math.random() * 4);
+    var move = getRandomIntegerBetween(0, allDirections.length);
+    while (move == direction) move = getRandomIntegerBetwee(0, allDirections.length);
     moveInDirection(move);
-    // TODO: Only increment move if it is a valid move!
+
     moves++;
   }, timePerMoveInMilliseconds);
 }
