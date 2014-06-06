@@ -63,6 +63,55 @@ Grid.prototype.eachCell = function (callback) {
   }
 };
 
+Grid.prototype.getTilesFromRowsAndColumns = function(rows, columns) {
+  // If not specified, use all rows or columns.
+  if (!rows) rows = [0, 1, 2, 3];
+  if (!columns) columns = [0, 1, 2, 3];
+
+  var tiles = [];
+  for (var i = 0; i < rows.length; i++) {
+    for (var j = 0; j < columns.length; j++) {
+      if (this.isTileAtPosition(columns[j], rows[i])) {
+        tiles.push(this.tileAtPosition(columns[j], rows[i]));
+      }
+    }
+  }
+  return tiles;
+};
+
+Grid.prototype.getWestTiles = function() {
+  var columns = [0, 1];
+
+  return this.getTilesFromRowsAndColumns(null, columns);
+};
+
+Grid.prototype.getEastTiles = function() {
+  var columns = [2, 3];
+
+  return this.getTilesFromRowsAndColumns(null, columns);
+};
+
+Grid.prototype.getNorthTiles = function() {
+  var rows = [0, 1];
+
+  return this.getTilesFromRowsAndColumns(rows, null);
+};
+
+Grid.prototype.getSouthTiles = function() {
+  var rows = [2, 3];
+
+  return this.getTilesFromRowsAndColumns(rows, null);
+};
+
+Grid.prototype.isTileAtPosition = function(x, y) {
+  return !!this.tileAtPosition(x, y);
+};
+
+Grid.prototype.tileAtPosition = function(x, y) {
+  var cell = { x : x, y : y };
+  return this.cellContent(cell);
+};
+
 // Check if there are any cells available
 Grid.prototype.cellsAvailable = function () {
   return !!this.availableCells().length;
