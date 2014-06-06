@@ -22,7 +22,7 @@ function play(name, moveFunction, millis) {
       // logRun(name, gameManager.score, moves, gameManager.grid.largestNumber());
       console.log("score : " + gameManager.score 
             + " ; moves : " + moves + " ; largestNumber : " + gameManager.grid.largestNumber());
-      restartGame();
+      restart();
     }
 
     var move = moveFunction();
@@ -165,7 +165,7 @@ function moveBasedOnNextMove () {
   moveInDirection(direction);
 }
 
-function restartGame() {
+function restart() {
   moves = 0;
   gameManager.inputManager.emit("restart");
 }
@@ -221,7 +221,7 @@ function playRandomlyWithoutDirection(direction, millis) {
       // logRun("random", gameManager.score, moves, gameManager.grid.largestNumber());
       console.log("score : " + gameManager.score 
             + " ; moves : " + moves + " ; largestNumber : " + gameManager.grid.largestNumber());
-      restartGame();
+      restart();
     }
 
     var move = getRandomIntegerBetween(0, allDirections.length);
