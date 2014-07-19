@@ -137,7 +137,20 @@ function getBestNextMoveOrBestAdjacency () {
   direction = getBestNextMove();
   if (!direction) {
     direction = getBestMoveByAdjacency();
-    if (!direction) direction = getRandomMove();
+  }
+
+  return direction;
+}
+
+function getBestNextMoveOrBestAdjacencyOrBetterThanRandom () {
+  var direction;
+
+  if (gameManager.over) return;
+
+  direction = getBestNextMove();
+  if (!direction) {
+    direction = getBestMoveByAdjacency();
+    if (!direction) direction = getBetterThanRandomMove();
   }
 
   return direction;
