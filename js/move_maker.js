@@ -152,8 +152,55 @@ function getBestNextMove() {
     return gameManager.getUtilityForDirection(direction);
   });
 
-  if (!direction) direction = getRandomMove();
+  return direction;
+}
 
+function getBetterThanRandomMove () {
+  var direction;
+  var moves = [];
+  var size = gameManager.grid.size;
+
+  if (gameManager.grid.getNumberOfTiles() > size * size - size + 1) {
+    moves.push(NORTH, SOUTH, EAST, WEST);
+  } else {
+    // Classify whether grid is upper, lower, right or left leaning.
+    var north = gameManager.grid.getNorthTiles().length;
+    var south = gameManager.grid.getSouthTiles().length;
+    var east  = gameManager.grid.getEastTiles().length;
+    var west  = gameManager.grid.getWestTiles().length;
+
+    var northSouthMap = {};
+    northSouthMap[north] = NORTH;
+    northSouthMap[south] = SOUTH;
+
+    var eastWestMap = {};
+    eastWestMap[east] = EAST;
+    eastWestMap[west] = WEST;
+
+    moves.push(getValueFromHighestKey(northSouthMap));
+    moves.push(getValueFromHighestKey(eastWestMap));
+  }
+
+  console.log("all moves: ");
+  console.log(moves);
+
+  var possibleMoves = [];
+  for (var i = 0; i < moves.length; i++) {
+    if (gameManager.canMoveInDirection(moves[i])) {
+      possibleMoves.push(moves[i]);
+    }
+  };
+
+  console.log("possible moves: ");
+  console.log(possibleMoves);
+
+  if (possibleMoves.length == 0) {
+    direction = getRandomMove();
+  } else {
+    // Select random move from moves array.
+    var i = getRandomIntegerBetween(0, possibleMoves.length);
+    direction = possibleMoves[i];
+  }
   return direction;
 }
 
