@@ -26,6 +26,7 @@ function play(name, moveFunction, millis) {
     }
 
     var move = moveFunction();
+    if (!move) move = getRandomMove();
     moveInDirection(move);
     moves++;
   }, timePerMoveInMilliseconds);
@@ -113,8 +114,6 @@ function getMoveBasedOnUtilityAndAdjacency () {
       + adjacencyWeight * gameManager.getAdjacencyUtilityForDirection(direction));
   });
 
-  if (!direction) direction = getRandomMove();
-
   return direction;
 }
 
@@ -126,8 +125,6 @@ function getBestMoveByAdjacency () {
   direction = getDirectionFromUtilityFunction(function (direction) {
     return gameManager.getAdjacencyUtilityForDirection(direction);
   });
-
-  if (!direction) direction = getRandomMove();
 
   return direction;
 }
